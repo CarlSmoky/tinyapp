@@ -9,6 +9,10 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//The body-parser library will convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body.
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
