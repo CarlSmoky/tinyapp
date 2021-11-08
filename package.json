@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/CarlSmoky/tinyapp/issues"
   },
-  "homepage": "https://github.com/CarlSmoky/tinyapp#readme"
+  "homepage": "https://github.com/CarlSmoky/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
