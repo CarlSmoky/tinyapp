@@ -31,6 +31,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  console.log(req.cookies);
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
@@ -57,6 +58,11 @@ app.post("/urls/:shortURL/edit", (req, res) => {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
     res.render("urls_show", templateVars);
   }
+});
+
+app.post("/login", (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect("/urls");
 });
 
 app.get("/urls/new", (req, res) => {
