@@ -66,17 +66,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL/edit", (req, res) => {
   if (req.body.longURL) {
     urlDatabase[req.params.shortURL] = req.body.longURL;
-<<<<<<< HEAD
-    const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
-    res.render("urls_index", templateVars);
-  } else {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"]  };
-=======
     const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
     res.render("urls_index", templateVars);
   } else {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies["user_id"]] };
->>>>>>> feature/user-registration
     res.render("urls_show", templateVars);
   }
 });
@@ -135,14 +128,9 @@ app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
   res.render("urls_index", templateVars);
 });
-//here
+
 app.get("/urls/new", (req, res) => {
-<<<<<<< HEAD
-  const templateVars = { username: req.cookies["username"] };
-=======
-  // const templateVars = { user: req.cookies["user"]};
   const templateVars = { user: users[req.cookies["user_id"]] };
->>>>>>> feature/user-registration
   res.render("urls_new", templateVars);
 });
 

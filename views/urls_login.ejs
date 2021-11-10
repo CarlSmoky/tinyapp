@@ -14,6 +14,7 @@
 <body>
   <%- include('partials/_header') %>
     <main style="margin: 1em;">
+      <div class="card-body">
       <h3>Login</h3>
       <form action="/login" method="POST">
         <div class="form-group mb-2">
@@ -22,12 +23,13 @@
             style="width: 300px; margin: 0em">
         </div>
         <div class="form-group mb-2">
-        <label for="password">Password:</label>
-        <input class="form-control" type="password" name="password" placeholder="Password"
-          style="width: 300px; margin: 0em">
+          <label for="password">Password:</label>
+          <input class="form-control" type="password" name="password" placeholder="Password"
+            style="width: 300px; margin: 0em">
         </div>
         <button type="submit" class="btn btn-primary">Login</button>
       </form>
+      </div>
     </main>
     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
