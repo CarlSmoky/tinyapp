@@ -51,6 +51,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.post("/urls", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    res.send('You need to login to add a new url');
+    return;
+  }
   console.log(req.body);  // Log the POST request body to the console
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
@@ -130,8 +134,12 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]] };
-  res.render("urls_new", templateVars);
+  if (req.cookies["user_id"]) {
+    const templateVars = { user: users[req.cookies["user_id"]] };
+    res.render("urls_new", templateVars);
+    return;
+  }
+  res.redirect("/login");
 });
 
 app.get("/urls.json", (req, res) => {
