@@ -13,18 +13,28 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
+
+//helpers
+const checkEmaliExist = (email, users) => {
+  for (let i in users) {
+    if (users[i].email === email) {
+      return true;
+    }
+  }
+  return false;
+};
 
 const generateRandomString = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -59,7 +69,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
     const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
     res.render("urls_index", templateVars);
   } else {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies["user_id"]]  };
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies["user_id"]] };
     res.render("urls_show", templateVars);
   }
 });
@@ -76,7 +86,20 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
   const id = generateRandomString();
-  users[id] = {id: id, email: req.body.email, password: req.body.password};
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400);
+    res.send('Email and password cannot be brank');
+    return;
+  }
+
+  const emailinList = checkEmaliExist(req.body.email, users);
+  if (emailinList) {
+    res.status(400);
+    res.send('Email is already registered');
+    return;
+  }
+  
+  users[id] = { id: id, email: req.body.email, password: req.body.password };
   res.cookie('user_id', id);
   res.redirect("/urls");
 });
@@ -92,7 +115,7 @@ app.get("/urls", (req, res) => {
 //here
 app.get("/urls/new", (req, res) => {
   // const templateVars = { username: req.cookies["username"]};
-  const templateVars = {user: users[req.cookies["user_id"]]};
+  const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
