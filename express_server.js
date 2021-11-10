@@ -85,7 +85,7 @@ const getId = (email, password) => {
 };
 
 app.post("/login", (req, res) => {
-  const {email, password} = req.body;
+  const { email, password } = req.body;
   const id = getId(email, password);
   if (id) {
     res.cookie('user_id', id);
@@ -153,13 +153,13 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]]};
-  res.render("urls_register", templateVars);
+  const templateVars = { user: null };
+  req.cookies["user_id"] ? res.redirect("/urls") : res.render("urls_register", templateVars);
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = { user: users[req.cookies["user_id"]]};
-  res.render("urls_login", templateVars);
+  const templateVars = { user: null };
+  req.cookies["user_id"] ? res.redirect("/urls") : res.render("urls_login", templateVars);
 });
 
 app.listen(PORT, () => {
