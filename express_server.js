@@ -75,20 +75,25 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 //helper
-const getId = (email) => {
+const getId = (email, password) => {
   for (let user in users) {
-    if (users[user].email === email) {
+    if (users[user].email === email && users[user].password === password) {
       return users[user].id;
     }
   }
-  return false;
+  return null;
 };
 
 app.post("/login", (req, res) => {
-  const currentUserEmail = req.body.email;
-  const id = getId(currentUserEmail);
-  res.cookie('user_id', id);
-  res.redirect("/urls");
+  const {email, password} = req.body;
+  const id = getId(email, password);
+  if (id) {
+    res.cookie('user_id', id);
+    res.redirect("/urls");
+  }
+  res.status(403);
+  res.send('Email and password do not match');
+  return;
 });
 
 app.post("/logout", (req, res) => {
@@ -149,11 +154,13 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("urls_register");
+  const templateVars = { user: users[req.cookies["user_id"]]};
+  res.render("urls_register", templateVars);
 });
 
 app.get("/login", (req, res) => {
-  res.render("urls_login");
+  const templateVars = { user: users[req.cookies["user_id"]]};
+  res.render("urls_login", templateVars);
 });
 
 app.listen(PORT, () => {

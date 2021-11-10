@@ -1,7 +1,8 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
@@ -13,14 +14,17 @@
     <% if(user) { %>
       <form class="form-inline" action="/logout" method="POST">
         <div class="form-group mb-2">
+          logged in as: <%= user.email %> &nbsp;&nbsp;
           <button type="submit" class="btn btn-outline-secondary">Logout</button>
         </div>
       </form>
       <% } else { %>
-        <a href="/register">Register</a>
-        &nbsp;&nbsp
-        <a href="/login">Login</a>
-    </form>
-    <% }%>
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/register">Register</a>
+        
+          <a class="nav-item nav-link" href="/login">Login</a>
+        </div>
+        </form>
+      <% }%>
   </nav>
 </header>
