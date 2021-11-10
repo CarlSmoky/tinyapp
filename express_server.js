@@ -74,8 +74,20 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   }
 });
 
+//helper
+const getId = (email) => {
+  for (let user in users) {
+    if (users[user].email === email) {
+      return users[user].id;
+    }
+  }
+  return false;
+};
+
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
+  const currentUserEmail = req.body.email;
+  const id = getId(currentUserEmail);
+  res.cookie('user_id', id);
   res.redirect("/urls");
 });
 
@@ -85,7 +97,6 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const id = generateRandomString();
   if (req.body.email === '' || req.body.password === '') {
     res.status(400);
     res.send('Email and password cannot be brank');
@@ -98,7 +109,7 @@ app.post("/register", (req, res) => {
     res.send('Email is already registered');
     return;
   }
-  
+  const id = generateRandomString();
   users[id] = { id: id, email: req.body.email, password: req.body.password };
   res.cookie('user_id', id);
   res.redirect("/urls");
@@ -114,7 +125,7 @@ app.get("/urls", (req, res) => {
 });
 //here
 app.get("/urls/new", (req, res) => {
-  // const templateVars = { username: req.cookies["username"]};
+  // const templateVars = { user: req.cookies["user"]};
   const templateVars = { user: users[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
@@ -138,8 +149,11 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_register");
+});
+
+app.get("/login", (req, res) => {
+  res.render("urls_login");
 });
 
 app.listen(PORT, () => {
