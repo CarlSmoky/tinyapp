@@ -70,12 +70,20 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    res.send("<p>You need to login to delte.</p> <a href = /login> Go to login page</a>");
+    return;
+  }
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
+  if (!req.cookies["user_id"]) {
+    res.send("<p>You need to login to edit.</p> <a href = /login> Go to login page</a>");
+    return;
+  }
   if (req.body.longURL) {
     urlDatabase[req.params.shortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] };
     const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
