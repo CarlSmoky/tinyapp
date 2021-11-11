@@ -86,7 +86,8 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   }
   if (req.body.longURL) {
     urlDatabase[req.params.shortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] };
-    const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
+    const fileterdUrlDatabase = urlsForUser(req.cookies["user_id"]);
+    const templateVars = { urls: fileterdUrlDatabase, user: users[req.cookies["user_id"]] };
     res.render("urls_index", templateVars);
   } else {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies["user_id"]] };
