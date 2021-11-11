@@ -36,13 +36,13 @@ const users = {
 };
 
 //helpers
-const checkEmaliExist = (email, users) => {
-  for (let i in users) {
-    if (users[i].email === email) {
-      return true;
+const getUserByEmail = (email) => {
+  for (let key in users) {
+    if (users[key].email === email) {
+      return users[key];
     }
   }
-  return false;
+  return null;
 };
 
 const generateRandomString = () => {
@@ -99,25 +99,30 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 //helper
-const getId = (email, password) => {
-  for (let user in users) {
-    if (users[user].email === email && users[user].password === password) {
-      return users[user].id;
-    }
-  }
-  return null;
-};
+// const getId = (email, password) => {
+//   for (let user in users) {
+//     if (users[user].email === email && users[user].password === password) {
+//       return users[user].id;
+//     }
+//   }
+//   return null;
+// };
 
 app.post("/login", (req, res) => {
-  const { email, password } = req.body;
-  const id = getId(email, password);
-  if (id) {
-    res.cookie('user_id', id);
-    res.redirect("/urls");
+  const user = getUserByEmail(req.body.email);
+  if (user) {
+    bcrypt.compare(req.body.password, user.password).then(result => {
+      if (result) {
+        res.cookie('user_id', user.id);
+        res.redirect('/urls');
+      } else {
+        res.status(403);
+        res.send("Incorrect Password!");
+      }
+    });
+  } else {
+    res.send("This email is not registered");
   }
-  res.status(403);
-  res.send('Email or password is incorrect');
-  return;
 });
 
 app.post("/logout", (req, res) => {
@@ -134,8 +139,8 @@ app.post("/register", (req, res) => {
     return;
   }
 
-  const emailinList = checkEmaliExist(req.body.email, users);
-  if (emailinList) {
+  const user = getUserByEmail(req.body.email);
+  if (user) {
     res.status(400);
     res.send('Email is already registered');
     return;
@@ -143,8 +148,8 @@ app.post("/register", (req, res) => {
 
   const id = generateRandomString();
   const password = req.body.password; // found in the req.params object
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  
+  const hashedPassword = bcrypt.hashSync(password, saltRounds);
+
   users[id] = { id: id, email: req.body.email, password: hashedPassword };
   res.cookie('user_id', id);
   res.redirect("/urls");
@@ -218,7 +223,6 @@ app.get("/hello", (req, res) => {
 app.get("/register", (req, res) => {
   const templateVars = { user: null };
   req.cookies["user_id"] ? res.redirect("/urls") : res.render("urls_register", templateVars);
-  console.log(users);
 });
 
 app.get("/login", (req, res) => {
