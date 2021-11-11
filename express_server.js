@@ -113,7 +113,7 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
   }
   res.status(403);
-  res.send('Email and password do not match');
+  res.send('Email or password is incorrect');
   return;
 });
 
