@@ -51,6 +51,8 @@ const generateRandomString = () => {
   return result;
 };
 
+
+
 //The body-parser library will convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body.
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -63,7 +65,7 @@ app.post("/urls", (req, res) => {
   }
   console.log(req.body);  // Log the POST request body to the console
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = {longURL: req.body.longURL, userID: req.cookies["user_id"]};
+  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] };
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -75,7 +77,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   if (req.body.longURL) {
-    urlDatabase[req.params.shortURL] = {longURL: req.body.longURL, userID: req.cookies["user_id"]};
+    urlDatabase[req.params.shortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] };
     const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
     res.render("urls_index", templateVars);
   } else {
@@ -134,8 +136,24 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+//helper
+const urlsForUser = id => {
+  let urls = {};
+  for (const key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
+      urls[key] = urlDatabase[key];
+    }
+  }
+  return urls;
+};
+
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
+  if (!req.cookies["user_id"]) {
+    res.send("<p>You need to login first</p> <a href = /login> Go to login page</a>");
+    return;
+  }
+  const fileterdUrlDatabase = urlsForUser(req.cookies["user_id"]);
+  const templateVars = { urls: fileterdUrlDatabase, user: users[req.cookies["user_id"]] };
   res.render("urls_index", templateVars);
 });
 
@@ -153,7 +171,16 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies["user_id"]] };
+  if (!req.cookies["user_id"]) {
+    res.send("<p>You need to login first</p> <a href = /login> Go to login page</a>");
+    return;
+  }
+  const fileterdUrlDatabase = urlsForUser(req.cookies["user_id"]);
+  if (!fileterdUrlDatabase[req.params.shortURL]) {
+    res.send(`The shortURL ${req.params.shortURL} isn't registered or is resitered by someone else. You can see only urls are registered by you.`);
+    return;
+  }
+  const templateVars = { shortURL: req.params.shortURL, longURL: fileterdUrlDatabase[req.params.shortURL].longURL, user: users[req.cookies["user_id"]] };
   res.render("urls_show", templateVars);
 });
 
