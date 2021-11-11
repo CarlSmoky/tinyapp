@@ -20,8 +20,11 @@
   "homepage": "https://github.com/CarlSmoky/tinyapp#readme",
   "dependencies": {
 <<<<<<< HEAD
-    "bcrypt": "^5.0.1",
+<<<<<<< HEAD
+    // "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
+=======
+>>>>>>> parent of e31e0df... Install bcryptjs
 =======
 >>>>>>> parent of e31e0df... Install bcryptjs
     "body-parser": "^1.19.0",
