@@ -17,6 +17,8 @@ app.use(cookieSession({
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
+const { getUserByEmail } = require("./helpers.js");
+
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -41,15 +43,7 @@ const users = {
   }
 };
 
-//helpers
-const getUserByEmail = (email, users) => {
-  for (let key in users) {
-    if (users[key].email === email) {
-      return users[key];
-    }
-  }
-  return null;
-};
+
 
 const generateRandomString = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
