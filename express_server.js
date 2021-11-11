@@ -68,18 +68,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.post("/urls", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.send('You need to login to add a new url');
     return;
   }
   console.log(req.body);  // Log the POST request body to the console
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] };
+  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.session.user_id };
   res.redirect(`/urls/${shortURL}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.send("<p>You need to login to delte.</p> <a href = /login> Go to login page</a>");
     return;
   }
@@ -89,37 +89,29 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.send("<p>You need to login to edit.</p> <a href = /login> Go to login page</a>");
     return;
   }
   if (req.body.longURL) {
-    urlDatabase[req.params.shortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] };
-    const fileterdUrlDatabase = urlsForUser(req.cookies["user_id"]);
-    const templateVars = { urls: fileterdUrlDatabase, user: users[req.cookies["user_id"]] };
+    urlDatabase[req.params.shortURL] = { longURL: req.body.longURL, userID: req.session.user_id };
+    const fileterdUrlDatabase = urlsForUser(req.session.user_id);
+    const templateVars = { urls: fileterdUrlDatabase, user: users[req.session.user_id] };
     res.render("urls_index", templateVars);
   } else {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies["user_id"]] };
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.session.user_id] };
     res.render("urls_show", templateVars);
   }
 });
-
-//helper
-// const getId = (email, password) => {
-//   for (let user in users) {
-//     if (users[user].email === email && users[user].password === password) {
-//       return users[user].id;
-//     }
-//   }
-//   return null;
-// };
 
 app.post("/login", (req, res) => {
   const user = getUserByEmail(req.body.email);
   if (user) {
     bcrypt.compare(req.body.password, user.password).then(result => {
       if (result) {
-        res.cookie('user_id', user.id);
+        // res.cookie('user_id', user.id);
+        // eslint-disable-next-line camelcase
+        req.session.user_id = user.id;
         res.redirect('/urls');
       } else {
         res.status(403);
@@ -132,11 +124,10 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
+  req.session = null;
+  // res.clearCookie('user_id');
   res.redirect("/urls");
 });
-
-
 
 app.post("/register", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
@@ -157,7 +148,7 @@ app.post("/register", (req, res) => {
   const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
   users[id] = { id: id, email: req.body.email, password: hashedPassword };
-  res.cookie('user_id', id);
+  req.session.user_id = id;
   res.redirect("/urls");
 });
 
@@ -177,18 +168,18 @@ const urlsForUser = id => {
 };
 
 app.get("/urls", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.send("<p>You need to login first</p> <a href = /login> Go to login page</a>");
     return;
   }
-  const fileterdUrlDatabase = urlsForUser(req.cookies["user_id"]);
-  const templateVars = { urls: fileterdUrlDatabase, user: users[req.cookies["user_id"]] };
+  const fileterdUrlDatabase = urlsForUser(req.session.user_id);
+  const templateVars = { urls: fileterdUrlDatabase, user: users[req.session.user_id] };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  if (req.cookies["user_id"]) {
-    const templateVars = { user: users[req.cookies["user_id"]] };
+  if (req.session.user_id) {
+    const templateVars = { user: users[req.session.user_id] };
     res.render("urls_new", templateVars);
     return;
   }
@@ -200,16 +191,16 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  if (!req.cookies["user_id"]) {
+  if (!req.session.user_id) {
     res.send("<p>You need to login first</p> <a href = /login> Go to login page</a>");
     return;
   }
-  const fileterdUrlDatabase = urlsForUser(req.cookies["user_id"]);
+  const fileterdUrlDatabase = urlsForUser(req.session.user_id);
   if (!fileterdUrlDatabase[req.params.shortURL]) {
     res.send(`The shortURL ${req.params.shortURL} isn't registered or is resitered by someone else. You can see only urls are registered by you.`);
     return;
   }
-  const templateVars = { shortURL: req.params.shortURL, longURL: fileterdUrlDatabase[req.params.shortURL].longURL, user: users[req.cookies["user_id"]] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: fileterdUrlDatabase[req.params.shortURL].longURL, user: users[req.session.user_id] };
   res.render("urls_show", templateVars);
 });
 
@@ -228,12 +219,12 @@ app.get("/hello", (req, res) => {
 
 app.get("/register", (req, res) => {
   const templateVars = { user: null };
-  req.cookies["user_id"] ? res.redirect("/urls") : res.render("urls_register", templateVars);
+  req.session.user_id ? res.redirect("/urls") : res.render("urls_register", templateVars);
 });
 
 app.get("/login", (req, res) => {
   const templateVars = { user: null };
-  req.cookies["user_id"] ? res.redirect("/urls") : res.render("urls_login", templateVars);
+  req.session.user_id ? res.redirect("/urls") : res.render("urls_login", templateVars);
 });
 
 app.listen(PORT, () => {
