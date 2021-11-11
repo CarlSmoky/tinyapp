@@ -42,7 +42,7 @@ const users = {
 };
 
 //helpers
-const getUserByEmail = (email) => {
+const getUserByEmail = (email, users) => {
   for (let key in users) {
     if (users[key].email === email) {
       return users[key];
@@ -105,7 +105,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const user = getUserByEmail(req.body.email);
+  const user = getUserByEmail(req.body.email, users);
   if (user) {
     bcrypt.compare(req.body.password, user.password).then(result => {
       if (result) {
@@ -136,7 +136,7 @@ app.post("/register", (req, res) => {
     return;
   }
 
-  const user = getUserByEmail(req.body.email);
+  const user = getUserByEmail(req.body.email, users);
   if (user) {
     res.status(400);
     res.send('Email is already registered');
