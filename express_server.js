@@ -133,32 +133,19 @@ app.post("/register", (req, res) => {
     res.send('Email and password cannot be brank');
     return;
   }
-  
+
   const emailinList = checkEmaliExist(req.body.email, users);
   if (emailinList) {
     res.status(400);
     res.send('Email is already registered');
     return;
   }
-  
-  
+
   const id = generateRandomString();
-  const hashedPassword = bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log(hash);
-    return hash;
-  });
-
+  const password = req.body.password; // found in the req.params object
+  const hashedPassword = bcrypt.hashSync(password, 10);
   
-const password = "purple-monkey-dinosaur"; // found in the req.params object
-const hashedPassword = bcrypt.hashSync(password, 10);
-
-  
-
-  users[id] = { id: id, email: req.body.email, password: /* req.body.password */hashedPassword };
+  users[id] = { id: id, email: req.body.email, password: hashedPassword };
   res.cookie('user_id', id);
   res.redirect("/urls");
 });
