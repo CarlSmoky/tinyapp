@@ -8,7 +8,6 @@ app.set("view engine", "ejs");
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-// const bcrypt = require('bcrypt');
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
@@ -126,7 +125,7 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-//helper
+
 
 app.post("/register", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
@@ -153,7 +152,13 @@ app.post("/register", (req, res) => {
     return hash;
   });
 
-  users[id] = { id: id, email: req.body.email, password: req.body.password/* hashedPassword */ };
+  
+const password = "purple-monkey-dinosaur"; // found in the req.params object
+const hashedPassword = bcrypt.hashSync(password, 10);
+
+  
+
+  users[id] = { id: id, email: req.body.email, password: /* req.body.password */hashedPassword };
   res.cookie('user_id', id);
   res.redirect("/urls");
 });
@@ -226,6 +231,7 @@ app.get("/hello", (req, res) => {
 app.get("/register", (req, res) => {
   const templateVars = { user: null };
   req.cookies["user_id"] ? res.redirect("/urls") : res.render("urls_register", templateVars);
+  console.log(users);
 });
 
 app.get("/login", (req, res) => {
