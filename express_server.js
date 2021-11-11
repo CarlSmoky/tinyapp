@@ -8,6 +8,10 @@ app.set("view engine", "ejs");
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+// const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const saltRounds = 10;
+
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -122,21 +126,34 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+//helper
+
 app.post("/register", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(400);
     res.send('Email and password cannot be brank');
     return;
   }
-
+  
   const emailinList = checkEmaliExist(req.body.email, users);
   if (emailinList) {
     res.status(400);
     res.send('Email is already registered');
     return;
   }
+  
+  
   const id = generateRandomString();
-  users[id] = { id: id, email: req.body.email, password: req.body.password };
+  const hashedPassword = bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log(hash);
+    return hash;
+  });
+
+  users[id] = { id: id, email: req.body.email, password: req.body.password/* hashedPassword */ };
   res.cookie('user_id', id);
   res.redirect("/urls");
 });
