@@ -17,7 +17,7 @@ app.use(cookieSession({
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
-const { getUserByEmail } = require("./helpers.js");
+const { getUserByEmail, urlsForUser } = require("./helpers.js");
 
 const urlDatabase = {
   b6UTxQ: {
@@ -88,7 +88,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   }
   if (req.body.longURL) {
     urlDatabase[req.params.shortURL] = { longURL: req.body.longURL, userID: req.session.user_id };
-    const fileterdUrlDatabase = urlsForUser(req.session.user_id);
+    const fileterdUrlDatabase = urlsForUser(req.session.user_id, urlDatabase);
     const templateVars = { urls: fileterdUrlDatabase, user: users[req.session.user_id] };
     res.render("urls_index", templateVars);
   } else {
@@ -149,24 +149,13 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-//helper
-const urlsForUser = id => {
-  let urls = {};
-  for (const key in urlDatabase) {
-    if (urlDatabase[key].userID === id) {
-      urls[key] = urlDatabase[key];
-    }
-  }
-  return urls;
-};
-
 app.get("/urls", (req, res) => {
   if (!req.session.user_id) {
     // res.send("<p>You need to login first</p> <a href = /login> Go to login page</a>");
     res.redirect("/login");
     return;
   }
-  const fileterdUrlDatabase = urlsForUser(req.session.user_id);
+  const fileterdUrlDatabase = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = { urls: fileterdUrlDatabase, user: users[req.session.user_id] };
   res.render("urls_index", templateVars);
 });
@@ -189,7 +178,7 @@ app.get("/urls/:shortURL", (req, res) => {
     res.send("<p>You need to login first</p> <a href = /login> Go to login page</a>");
     return;
   }
-  const fileterdUrlDatabase = urlsForUser(req.session.user_id);
+  const fileterdUrlDatabase = urlsForUser(req.session.user_id, urlDatabase);
   if (!fileterdUrlDatabase[req.params.shortURL]) {
     res.send(`The shortURL ${req.params.shortURL} isn't registered or is resitered by someone else. You can see only urls are registered by you.`);
     return;

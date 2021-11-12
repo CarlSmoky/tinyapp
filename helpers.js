@@ -7,4 +7,14 @@ const getUserByEmail = (email, users) => {
   }
 };
 
-module.exports = { getUserByEmail };
+const urlsForUser = (id, urlDatabase) => {
+  let urls = {};
+  for (const key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
+      urls[key] = urlDatabase[key];
+    }
+  }
+  return urls;
+};
+
+module.exports = { getUserByEmail, urlsForUser };
