@@ -66,7 +66,6 @@ app.post("/urls", (req, res) => {
     res.send('You need to login to add a new url');
     return;
   }
-  console.log(req.body);  // Log the POST request body to the console
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.session.user_id };
   res.redirect(`/urls/${shortURL}`);
@@ -163,7 +162,8 @@ const urlsForUser = id => {
 
 app.get("/urls", (req, res) => {
   if (!req.session.user_id) {
-    res.send("<p>You need to login first</p> <a href = /login> Go to login page</a>");
+    // res.send("<p>You need to login first</p> <a href = /login> Go to login page</a>");
+    res.redirect("/login");
     return;
   }
   const fileterdUrlDatabase = urlsForUser(req.session.user_id);

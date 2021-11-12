@@ -15,10 +15,14 @@ const testUsers = {
   }
 };
 
-describe('getUserByEmail', function () {
-  it('should return a user with valid email', function () {
-    const user = getUserByEmail("user@example.com", testUsers)
+describe('getUserByEmail', function() {
+  it('should return a user with valid email', function() {
+    const user = getUserByEmail("user@example.com", testUsers);
     const expectedUserID = "userRandomID";
-    assert.equal(1, 1);
+    assert.equal(user.id, expectedUserID);
+  });
+  it('should return undefined', function() {
+    const user = getUserByEmail("dummy@example.com", testUsers);
+    assert.equal(user, undefined);
   });
 });

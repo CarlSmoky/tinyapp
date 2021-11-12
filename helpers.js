@@ -5,7 +5,6 @@ const getUserByEmail = (email, users) => {
       return users[key];
     }
   }
-  return null;
 };
 
 module.exports = { getUserByEmail };
