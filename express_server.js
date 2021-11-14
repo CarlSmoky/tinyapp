@@ -1,7 +1,7 @@
 const express = require("express");
 
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
 app.set("view engine", "ejs");
 
@@ -42,7 +42,7 @@ const users = {
     password: "dishwasher-funk"
   }
 };
-//The body-parser library will convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body.
+
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -88,8 +88,6 @@ app.post("/login", (req, res) => {
   if (user) {
     bcrypt.compare(req.body.password, user.password).then(result => {
       if (result) {
-        // res.cookie('user_id', user.id);
-        // eslint-disable-next-line camelcase
         req.session.user_id = user.id;
         res.redirect('/urls');
       } else {
