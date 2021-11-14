@@ -17,7 +17,7 @@ app.use(cookieSession({
 const bcrypt = require('bcryptjs');
 const saltRounds = 10;
 
-const { getUserByEmail, urlsForUser } = require("./helpers.js");
+const { getUserByEmail, urlsForUser, generateRandomString } = require("./helpers.js");
 
 const urlDatabase = {
   b6UTxQ: {
@@ -42,20 +42,6 @@ const users = {
     password: "dishwasher-funk"
   }
 };
-
-
-
-const generateRandomString = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
-
-
 //The body-parser library will convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body.
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
